@@ -1,29 +1,20 @@
 package aws
 
 import (
+	"bytes"
 	"fmt"
-	"os"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-func UploadObject(bucket string, filePath string, fileName string, sess *session.Session) error {
-	// Open file to upload
-	file, err := os.Open(filePath)
-	if err != nil {
-		fmt.Printf("Unable to open file")
-		return err
-	}
-	defer file.Close()
-
-	// Upload to s3
+func UploadObject(bucket string, buffer *aws.WriteAtBuffer, fileName string, sess *session.Session) error {
 	uploader := s3manager.NewUploader(sess)
-	_, err = uploader.Upload(&s3manager.UploadInput{
+
+	_, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(fileName),
-		Body:   file,
+		Body:   bytes.NewReader(buffer.Bytes()),
 	})
 
 	if err != nil {
@@ -32,5 +23,6 @@ func UploadObject(bucket string, filePath string, fileName string, sess *session
 	}
 
 	fmt.Printf("Successfully uploaded %q to %q\n", fileName, bucket)
+
 	return nil
 }

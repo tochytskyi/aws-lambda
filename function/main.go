@@ -1,7 +1,6 @@
 package main
 
 import (
-	awsHelpers "aws-lambda/aws"
 	"context"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
@@ -9,8 +8,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"os"
+
+	"aws-lambda/convert"
+	"github.com/sunshineplan/imgconv"
 )
 
 type Response struct {
@@ -21,13 +22,18 @@ type Response struct {
 var region = "us-east-2"
 var copyToBucket = "jpeg-converted-images"
 
-var awsS3Session *s3.S3
+var awsSession *session.Session
+
+//var awsS3Session *s3.S3
 
 func handler(ctx context.Context, s3Event events.S3Event) (Response, error) {
 	for _, record := range s3Event.Records {
 		s3 := record.S3
 		fmt.Printf("[%s - %s] Bucket = %s, Key = %s \n", record.EventSource, record.EventTime, s3.Bucket.Name, s3.Object.Key)
-		awsHelpers.CopyImage(s3.Bucket.Name, s3.Object.Key, copyToBucket, awsS3Session)
+		//awsHelpers.CopyImage(s3.Bucket.Name, s3.Object.Key, copyToBucket, awsSession)
+		convert.Convert(s3.Bucket.Name, s3.Object.Key, copyToBucket, awsSession, imgconv.PNG)
+		convert.Convert(s3.Bucket.Name, s3.Object.Key, copyToBucket, awsSession, imgconv.BMP)
+		convert.Convert(s3.Bucket.Name, s3.Object.Key, copyToBucket, awsSession, imgconv.GIF)
 	}
 
 	fmt.Printf("%d files converted", len(s3Event.Records))
@@ -49,7 +55,7 @@ func exitErrorf(msg string, args ...interface{}) {
 }
 
 func initSession() {
-	var awsSession, err = session.NewSession(&aws.Config{
+	sessionTmp, err := session.NewSession(&aws.Config{
 		Region: aws.String(region),
 		Credentials: credentials.NewStaticCredentials(
 			os.Getenv("AccessKeyID"),
@@ -63,5 +69,7 @@ func initSession() {
 		exitErrorf("Unable to init aws session")
 	}
 
-	awsS3Session = s3.New(awsSession)
+	awsSession = sessionTmp
+
+	//awsS3Session = s3.New(awsSession)
 }

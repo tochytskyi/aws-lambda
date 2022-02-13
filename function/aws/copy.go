@@ -21,7 +21,6 @@ func CopyImage(bucket string, item string, copyToBucket string, awsS3Session *s3
 		exitErrorf("Unable to copy item from bucket %q to bucket %q, %v", bucket, copyToBucket, err)
 	}
 
-	// Wait to see if the item got copied
 	err = awsS3Session.WaitUntilObjectExists(&s3.HeadObjectInput{
 		Bucket: aws.String(copyToBucket),
 		Key:    aws.String(item),
