@@ -13,6 +13,13 @@ cd ./function
 GOOS=linux go build -o converter-function main.go
 ```
 - Make zip from `converter-function` executable and upload to AWS lambda
+- Setup Runtime settings to invoke go executable
+  ![img_5.png](docs/img_5.png)
+- Add env variables to use S3 credentials for you IAM role: `AccessKeyID`, `AccessKeySecret`
+
+  ![img_4.png](docs/img_4.png)
+
+Result lambda scheme:
 
 ![img_2.png](docs/img_2.png)
 
