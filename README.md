@@ -27,10 +27,13 @@ Result lambda scheme:
 Upload jpg image to `jpeg-images` bucket
 
 `jpeg-images`
+
 ![img.png](docs/img.png)
 
 `converted-jpeg-images` after couple of seconds
+
 ![img_1.png](docs/img_1.png)
 
 and check CloudWatch logs
+
 ![img_3.png](docs/img_3.png)
